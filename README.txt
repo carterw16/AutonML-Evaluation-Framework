@@ -1,2 +1,2 @@
 1. Specify the path to store the evaluation results using the variable "parent_dir" at the line 2 of the file "run.py".
-2. Run command "python run.py" to begin the evaluation of the evaluation of the 4 AutoML systems: Auto^nML, H2O AutoML, TPOT, AutoGluon.
+2. Run command "python run.py" to begin the evaluation of the evaluation of AutonML.

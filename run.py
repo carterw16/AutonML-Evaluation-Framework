@@ -16,24 +16,32 @@ import pandas as pd
 import numpy as np
 from numpy import savetxt
 import sys
-import logging
+
 from analysis.auc_rank import train_test_auc_picard
+
+import logging
 logging.basicConfig(filename=os.path.join(parent_dir, "errors.log"))
 
 # ids= [823, 737, 740, 757, 792, 799, 803]     #OpenML IDs
 # ids = [*range(166860, 166890)]
 # timelimits=[60, 600, 1200]
+tasks = os.path.join(os.getcwd(), "Desktop/")
 picard_tr_auc_scores = []
 picard_te_auc_scores = []
-tasks = os.path.join(os.getcwd(), "Desktop/")
 #for each OpenML dataset:
 for task in os.listdir(tasks):
     print("*** For OpenML ID #" + str(task)+ " ***")
     try:
-        if os.path.isfile(task):
-            continue
-        task_dir = os.path.join(tasks, task)
         os.chdir(parent_dir)
+        task_dir = os.path.join(tasks, task)
+        if not os.path.isdir(task_dir):
+            print("Ignoring file")
+            continue
+        task_id = task.split("_")[1]
+        eval_task_dir = os.path.join(os.getcwd(), task)
+        if os.path.exists(eval_task_dir):
+            shutil.rmtree(eval_task_dir)
+        os.makedirs(eval_task_dir)
     #    #save train-test split
     #    (X_train, X_test, y_train, y_test, name, dummy, rows, classes, columns) = openml_dataset.get_openml_classification_dataset(id)
     #    train = pd.concat([pd.DataFrame(X_train), pd.DataFrame(y_train)], axis = 1)
@@ -51,13 +59,13 @@ for task in os.listdir(tasks):
 
     # run picard
     try:
-        train_aucs, test_aucs, train_auc_best, test_auc_best = run_picard(task_dir, task)
+        train_auc_best, test_auc_best = run_picard(task_dir, eval_task_dir, task_id)
         picard_tr_auc_scores.append(train_auc_best)
         picard_te_auc_scores.append(test_auc_best)
     except KeyboardInterrupt:
         sys.exit()
     except Exception as e:
-        print(task, "picard")
+        print(task, "picard failed")
         logging.exception(e, exc_info=True)
     print("*** Finished OpenML ID #"  + str(task) + " ***")
 
