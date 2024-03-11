@@ -1,9 +1,17 @@
-import os, shutil
+import os, shutil, sys, logging
+from pathlib import Path
+from picard_script import run_picard
+import pandas as pd
+import numpy as np
+from numpy import savetxt
+sys.path.append('../')
+from analysis.auc_rank import train_test_auc_picard
+
 parent_dir = os.path.join(os.getcwd(), r'eval_results')
 if os.path.exists(parent_dir):
     shutil.rmtree(parent_dir)
 os.makedirs(parent_dir)
-# os.chdir(parent_dir)
+# print(Path(os.getcwd()).parent.absolute())
 
 #import necessary functions/packages:
 # import openml_dataset
@@ -11,15 +19,7 @@ os.makedirs(parent_dir)
 # from h2o_script import run_h2o
 # from tpot_script import run_tpot
 # from ag_script import run_autogluon
-from picard_script import run_picard
-import pandas as pd
-import numpy as np
-from numpy import savetxt
-import sys
 
-from analysis.auc_rank import train_test_auc_picard
-
-import logging
 logging.basicConfig(filename=os.path.join(parent_dir, "errors.log"))
 
 # ids= [823, 737, 740, 757, 792, 799, 803]     #OpenML IDs
