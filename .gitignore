@@ -1,2 +1,6 @@
 Desktop/
 eval_results/
+*.csv
+.DS_Store
+*.svg
+*.pyc

@@ -7,6 +7,8 @@ import csv
 import warnings
 import code
 import matplotlib.pyplot as plt
+sys.path.append('../')
+from analysis.auc_rank import train_test_auc_picard
 
 PATH_TO_PICARD="/Users/carterweaver/Desktop/Summer2023/Auton/ngautonml"
 sys.path.append(PATH_TO_PICARD)
@@ -20,14 +22,14 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-def write_best_to_csv(task_id, train_auc, test_auc):
+def write_best_to_csv(task_id, train_auc, test_auc, auton_auc_train, auton_auc_test):
 	csv_file = "picard_scores.csv"  # CSV file to store results
-	row = [task_id, train_auc, test_auc]
+	row = [task_id, train_auc, test_auc, auton_auc_train, auton_auc_test]
 	if not os.path.isfile(csv_file):
 		# Create the CSV file with headers if it doesn't exist
 		with open(csv_file, 'w', newline='') as file:
 			writer = csv.writer(file)
-			writer.writerow(["Task ID", "Train AUC", "Test AUC"])
+			writer.writerow(["Task ID", "Picard Train AUC", "Picard Test AUC", "AutonML Train AUC", "AutonML Test AUC"])
 
 	with open(csv_file, 'a', newline='') as file:
 		writer = csv.writer(file)
@@ -81,6 +83,23 @@ def plot_task_scores_picard(task_id):
 def run_picard(task_dir, eval_task_dir, task_id):
 	eval_dir = os.getcwd()
 	os.chdir(eval_task_dir)
+
+	#Read AutonML AUC scores
+	csv_file = os.path.join(
+		task_dir, f'timelimit_1200sec', f'timelimit-1200sec-summary.csv')
+	# Check if the CSV file exists
+	if not os.path.exists(csv_file):
+		print(f"CSV file '{csv_file}' not found.")
+
+	# Read the CSV file and extract AutonML scores
+	summary = pd.read_csv(csv_file)
+	# print(summary.columns)
+	for index, row in summary.iterrows():
+		if row[0] == 'Auto^nML(Best)':
+			auton_auc_train = float(row['AUC-Train'])
+			auton_auc_test = float(row['AUC-Test'])
+			print(auton_auc_train, auton_auc_test)
+
 
 	# Read training/testing data
 	train_path = os.path.join(task_dir, "train.csv")
@@ -155,8 +174,16 @@ def run_picard(task_dir, eval_task_dir, task_id):
 
 	#write:
 	os.chdir(eval_dir)
-	write_best_to_csv(task_id, train_auc_best, test_auc_best)
-	return train_auc_best, test_auc_best
+	write_best_to_csv(task_id, train_auc_best, test_auc_best,
+	                  auton_auc_train, auton_auc_test)
+	return train_auc_best, test_auc_best, auton_auc_train, auton_auc_test
 
+# Write a function that reads each column of picard_scores.csv into a list and passes it into train_test_auc_picard
+def plot_best_scores():
+	# Read csv file
+	csv_file = "eval_results/picard_scores.csv"
+	df = pd.read_csv(csv_file)
+	train_test_auc_picard(df['Picard Train AUC'], df['Picard Test AUC'], df['AutonML Train AUC'], df['AutonML Test AUC'])
 
 # run_picard("../ngautonml/examples/classification",0)
+# plot_best_scores()

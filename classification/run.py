@@ -59,7 +59,7 @@ for task in os.listdir(tasks):
 
     # run picard
     try:
-        train_auc_best, test_auc_best = run_picard(task_dir, eval_task_dir, task_id)
+        train_auc_best, test_auc_best, auton_auc_train, auton_auc_test = run_picard(task_dir, eval_task_dir, task_id)
         picard_tr_auc_scores.append(train_auc_best)
         picard_te_auc_scores.append(test_auc_best)
     except KeyboardInterrupt:
@@ -68,5 +68,8 @@ for task in os.listdir(tasks):
         print(task, "picard failed")
         logging.exception(e, exc_info=True)
     print("*** Finished OpenML ID #"  + str(task) + " ***")
+    break
+print("*** Finished All Tasks #")
 
-train_test_auc_picard(picard_tr_auc_scores, picard_te_auc_scores)
+os.chdir(parent_dir)
+train_test_auc_picard(picard_tr_auc_scores, picard_te_auc_scores, auton_auc_train, auton_auc_test)
