@@ -55,8 +55,8 @@ for task in sorted(os.listdir(tasks)):
     try:
         train_r2_best, test_r2_best = run_picard(
             task_dir, eval_task_dir, task_id)
-        picard_tr_r2_scores.append(train_rmse_best)
-        picard_te_r2_scores.append(test_rmse_best)
+        picard_tr_r2_scores.append(train_r2_best)
+        picard_te_r2_scores.append(test_r2_best)
     except KeyboardInterrupt:
         sys.exit()
     except Exception as e:

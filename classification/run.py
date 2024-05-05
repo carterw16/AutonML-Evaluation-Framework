@@ -68,8 +68,7 @@ for task in os.listdir(tasks):
         print(task, "picard failed")
         logging.exception(e, exc_info=True)
     print("*** Finished OpenML ID #"  + str(task) + " ***")
-    break
 print("*** Finished All Tasks #")
 
-os.chdir(parent_dir)
+# os.chdir(parent_dir)
 train_test_auc_picard(picard_tr_auc_scores, picard_te_auc_scores, auton_auc_train, auton_auc_test)

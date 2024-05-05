@@ -21,30 +21,30 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-def write_best_to_csv(task_id, train_r2, test_r2):
+def write_best_to_csv(task_id, pipeline, train_r2, test_r2):
 	csv_file = "picard_reg_scores.csv"  # CSV file to store results
-	row = [task_id, train_r2, test_r2]
+	row = [task_id, pipeline, train_r2, test_r2]
 	if not os.path.isfile(csv_file):
 		# Create the CSV file with headers if it doesn't exist
 		with open(csv_file, 'w', newline='') as file:
 			writer = csv.writer(file)
-			writer.writerow(["Task ID", "Train R2", "Test R2"])
+			writer.writerow(["Task ID", "Pipeline", "Train R2", "Test R2"])
 
 	with open(csv_file, 'a', newline='') as file:
 		writer = csv.writer(file)
 		writer.writerow(row)
 
 
-def write_task_to_csv(task_id, train_rmse_scores, test_rmse_scores):
+def write_task_to_csv(task_id, train_r2_scores, test_r2_scores):
 	csv_file = f"picard_scores_{task_id}.csv"
 
 	with open(csv_file, 'w', newline='') as file:
 		writer = csv.writer(file)
-		writer.writerow(["pipeline_des", "train_rmse", "test_rmse"])
+		writer.writerow(["pipeline_des", "train_r2", "test_r2"])
 
-		for pipeline_des, train_rmse in train_rmse_scores.items():
-			test_rmse = test_rmse_scores[pipeline_des]
-			writer.writerow([pipeline_des[:10], train_rmse, test_rmse])
+		for pipeline_des, train_r2 in train_r2_scores.items():
+			test_r2 = test_r2_scores[pipeline_des]
+			writer.writerow([pipeline_des[:10], train_r2, test_r2])
 
 def plot_task_scores_picard(task_id):
 	csv_files = glob.glob(f"picard_scores_{task_id}.csv")
@@ -59,13 +59,10 @@ def plot_task_scores_picard(task_id):
 
 	for index, row in df.iterrows():
 		pipeline_des = row['pipeline_des']
-		train_rmse = row['train_rmse']
-		test_rmse = row['test_rmse']
+		train_r2 = row['train_r2']
+		test_r2 = row['test_r2']
 
-		plt.scatter(train_rmse, test_rmse, label=pipeline_des)
-
-	# plt.plot([0, max(train_rmse_scores.values())], [0, max(test_rmse_scores.values())], 'r--')
-	# draw a line from (0,0) to the top right of the figure along the diagonal
+		plt.scatter(train_r2, test_r2, label=pipeline_des)
 
 	plt.plot([0, 1], [0, 1], 'r--')
 	plt.xlabel("Train R^2 Score")
@@ -169,7 +166,7 @@ def run_picard(task_dir, eval_task_dir, task_id):
 
 	#write:
 	os.chdir(eval_dir)
-	write_best_to_csv(task_id, train_r2_best, test_r2_best)
+	write_best_to_csv(task_id, best_pipeline.pipeline_des, train_r2_best, test_r2_best)
 	return train_r2_best, test_r2_best
 
 

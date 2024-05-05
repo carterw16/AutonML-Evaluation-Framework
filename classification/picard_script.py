@@ -22,14 +22,14 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-def write_best_to_csv(task_id, train_auc, test_auc, auton_auc_train, auton_auc_test):
+def write_best_to_csv(task_id, pipeline, train_auc, test_auc, auton_auc_train, auton_auc_test):
 	csv_file = "picard_scores.csv"  # CSV file to store results
-	row = [task_id, train_auc, test_auc, auton_auc_train, auton_auc_test]
+	row = [task_id, pipeline, train_auc, test_auc, auton_auc_train, auton_auc_test]
 	if not os.path.isfile(csv_file):
 		# Create the CSV file with headers if it doesn't exist
 		with open(csv_file, 'w', newline='') as file:
 			writer = csv.writer(file)
-			writer.writerow(["Task ID", "Picard Train AUC", "Picard Test AUC", "AutonML Train AUC", "AutonML Test AUC"])
+			writer.writerow(["Task ID", "Pipeline","Picard Train AUC", "Picard Test AUC", "AutonML Train AUC", "AutonML Test AUC"])
 
 	with open(csv_file, 'a', newline='') as file:
 		writer = csv.writer(file)
@@ -95,7 +95,7 @@ def run_picard(task_dir, eval_task_dir, task_id):
 	summary = pd.read_csv(csv_file)
 	# print(summary.columns)
 	for index, row in summary.iterrows():
-		if row[0] == 'Auto^nML(Best)':
+		if row[0] == 'Auto^nML(Top)':
 			auton_auc_train = float(row['AUC-Train'])
 			auton_auc_test = float(row['AUC-Test'])
 			print(auton_auc_train, auton_auc_test)
@@ -171,14 +171,13 @@ def run_picard(task_dir, eval_task_dir, task_id):
 	write_task_to_csv(task_id, train_auc_scores, test_auc_scores)
 	# Save scatterplot of auc scores in Picard folder
 	plot_task_scores_picard(task_id)
-
+	print(best_pipeline.pipeline_des)
 	#write:
 	os.chdir(eval_dir)
-	write_best_to_csv(task_id, train_auc_best, test_auc_best,
+	write_best_to_csv(task_id, best_pipeline.pipeline_des, train_auc_best, test_auc_best,
 	                  auton_auc_train, auton_auc_test)
 	return train_auc_best, test_auc_best, auton_auc_train, auton_auc_test
 
-# Write a function that reads each column of picard_scores.csv into a list and passes it into train_test_auc_picard
 def plot_best_scores():
 	# Read csv file
 	csv_file = "eval_results/picard_scores.csv"
